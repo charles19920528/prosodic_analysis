@@ -5,11 +5,18 @@ from sklearn.cluster import KMeans
 import numpy as np
 
 import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
+from pandas.plotting import scatter_matrix
+
 
 data = pd.read_csv("./data/100AfAmWomenPoetsVoxitResults.csv")
 data = data.dropna()
 data = data.drop(['file'], axis=1)
+
+########################
+# Matrix scatter plot. #
+########################
+scatter_matrix(data, alpha = 0.2, figsize = (6, 6), diagonal = 'kde')
+
 
 ##############
 # Clustering #
