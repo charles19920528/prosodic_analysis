@@ -37,7 +37,7 @@ def plot_cluster(feature_category_vet, ncluster):
     """
     Perform K-means clustering, provide a 3d plot, and return poems
     :param feature_category_vet: A vector which should be one of the feature category defined above.
-     Ie. pitch, pause, complexity or intensity.
+     Ie. pitch, pause, complexity or intensity. The function assumes that each feature category has exactly 3 features.
     :param ncluster: An integer which specifies the number of clusters.
     :return:
     poems_cluster_dictionary: A dictionary of which each key is a cluster index and the values are the poems in the
