@@ -7,8 +7,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 
-data = pd.read_csv("./data/100AfAmWomenPoetsVoxitResults - 100AfAmWomenPoetsVoxitResults.csv")
+data = pd.read_csv("./data/100AfAmWomenPoetsVoxitResults.csv")
 data = data.dropna()
+data = data.drop(['file'], axis=1)
 
 ##############
 # Clustering #
