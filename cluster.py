@@ -2,13 +2,12 @@ import pandas as pd
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-
+import numpy as np
 
 ################
 # Data loading #
 ################
 data = pd.read_csv("data/data_for_analysis.csv")
-
 
 #######################################
 # Clustering on one feature category. #
@@ -44,9 +43,9 @@ def plot_cluster(measurement_name_vet, ncluster, data_frame):
         ax.scatter3D(measurement_data_frame[column_names_vet[0]][idx], measurement_data_frame[column_names_vet[1]][idx],
                      measurement_data_frame[column_names_vet[2]][idx], color=color_dict[i], label=i)
         ax.legend()
-        ax.set_xlabel(color_dict[0])
-        ax.set_ylabel(color_dict[1])
-        ax.set_zlabel(color_dict[2])
+        ax.set_xlabel(column_names_vet[0])
+        ax.set_ylabel(column_names_vet[1])
+        ax.set_zlabel(column_names_vet[2])
     plt.show()
     poets_cluster_dictionary = {}
     for i in range(ncluster):
@@ -59,3 +58,17 @@ pause_cluster_dictionary = plot_cluster(measurement_name_vet=pause_name_vet, ncl
 complexity_cluster_dictionary = plot_cluster(measurement_name_vet=complexity_name_vet, ncluster=4, data_frame=data)
 intensity_cluster_dictionary = plot_cluster(measurement_name_vet=intensity_name_vet, ncluster=2, data_frame=data)
 
+
+cluster_to_report_dictionary = plot_cluster(measurement_name_vet=['IntensityMeanAbsVelocity', "Dynamism",
+                                                                  'MeanPauseDuration'], ncluster=2, data_frame=data)
+poets_cluster_1 = cluster_to_report_dictionary[0].unique()
+poets_cluster_2 = cluster_to_report_dictionary[1].unique()
+
+# Poets have recordings only in the first group
+poets_cluster_1[~np.in1d(poets_cluster_1, poets_cluster_2)]
+
+# Poets have recordings in both group
+poets_cluster_1[np.in1d(poets_cluster_1, poets_cluster_2)]
+
+# Poets have recordings only in the second group
+poets_cluster_2[~np.in1d(poets_cluster_2, poets_cluster_1)]

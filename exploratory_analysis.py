@@ -12,7 +12,7 @@ from pandas.plotting import scatter_matrix
 data = pd.read_csv("data/data_for_analysis.csv")
 
 # Categorize features.
-pitch_name_vet = ['f0Mean', 'f0Range2sd', 'f0Entropy']
+pitch_name_vet = ['f0Mean', 'f0Range2sd', 'f0Entropy', 'f0MeanAbsVelocity', 'f0MeanAbsAccel']
 pause_name_vet = ['PauseRate', 'PauseDutyCycle', 'MeanPauseDuration']
 complexity_name_vet = ['ComplexityAllPauses', 'ComplexitySyllables', 'ComplexityPhrases']
 intensity_name_vet = ['IntensitySegmentMeanSD', 'IntensityMeanAbsVelocity', 'IntensityMeanAbsAccel']
@@ -21,6 +21,75 @@ full_measurement_name_vet = pitch_name_vet + pause_name_vet + intensity_name_vet
 
 features = {'pitch': pitch_name_vet, 'pause': pause_name_vet, 'complexity': complexity_name_vet,
             'intensity': intensity_name_vet}
+
+########################
+# Matrix scatter plots #
+########################
+# Conclusions for clustering.
+# Examine the relationship between measurements. Try to find dimensions for clustering.
+# 'f0MeanAbsVelocity', 'f0MeanAbsAccel' are highly correlated which is not a surpose as accel is the derivative of vel.
+# Both of them are highly correlated with Dynamism. This question the necessity of creating Dynamism.
+# Dynamism seems to have linear relationship with all other measurements. We propose that use either dynamism or
+# f0MeanAbsVelocity for one of the dimension to perform cluster on.
+
+# birth year seems to be have a linear relationship with these measurements.
+scatter_matrix(data[["birth_year", "region", "Dynamism"] + pitch_name_vet])
+
+# We definitely want to use 'IntensityMeanAbsVelocity' for clustering.
+# No other realtionship are found. Intensity measurements are also not related to the pitch measurements.
+scatter_matrix(data[["birth_year", "Dynamism"] + intensity_name_vet])
+scatter_matrix(data[intensity_name_vet + pitch_name_vet])
+
+# Pause measurements don't seem to related to birth year. They are highly correlated between each other.
+# Uuse "PauseRate" for clustering.
+scatter_matrix(data[["birth_year", "Dynamism"] + pause_name_vet])
+
+# By definition, Dynamism should be correlated with ComplexitySyllables. The graph supports the hypothesis.
+# 'ComplexityAllPauses' and PauseRate are almost perfectly correlated.
+scatter_matrix(data[["birth_year", "Dynamism", "PauseRate", 'IntensityMeanAbsVelocity'] + complexity_name_vet])
+
+# Measurements for clustering: 'IntensityMeanAbsVelocity', "Dynamism" or "f0MeanAbsVelocity", PauseRate。
+
+# This plot is used for report
+scatter_matrix(data[["birth_year", "Dynamism", 'MeanPauseDuration', 'f0Entropy', 'f0MeanAbsVelocity', "IntensityMeanAbsVelocity"]])
+
+
+####################
+# Boxplot and test #
+####################
+def boxplot(measure_name_vet, data_frame):
+    for measure_name in measure_name_vet:
+        response_column = data_frame[measure_name]
+        column_name_vet = ["undergrad_study_indicator", "graduate_study_indicator",
+                           "cave_canem_indicator", "public_private_indicator", "region", "Ivy"]
+        label_vet=["Undergraduate", "Graduate", "Cave Canem", "Public or Private", "Region", "Ivy"]
+        categorical_data_frame = data_frame[column_name_vet]
+
+        fig, ax = plt.subplots(3, 2)
+        for i, sub_ax in enumerate(ax.reshape(-1)):
+            category_vet = np.unique(categorical_data_frame.iloc[:, i])
+            response_vet = [response_column[categorical_data_frame.iloc[:, i] == category] for category in
+                            category_vet]
+            sub_ax.boxplot(response_vet, labels=category_vet)
+            sub_ax.set_title(label_vet[i])
+
+        fig.suptitle(measure_name)
+
+boxplot(measure_name_vet=["Dynamism", "MeanPauseDuration", 'IntensityMeanAbsVelocity'], data_frame=data)
+
+
+
+# frange_sd_2
+boxplot(measure_name_vet=["f0Range2sd"], data_frame=data)
+boxplot(measure_name_vet=["f0MeanAbsVelocity"], data_frame=data)
+boxplot(measure_name_vet=["IntensityMeanAbsVelocity"], data_frame=data)
+
+# Pause
+# boxplot(measure_name_vet=full_measurement_name_vet, data_frame=data)
+boxplot(measure_name_vet=pitch_name_vet + ["Dynamism"], data_frame=data)
+
+
+
 
 ###################
 # 3D Scatter plot #
@@ -97,83 +166,4 @@ visualize_3d(measurement_name_vet=complexity_name_vet, name_of_categorical_var="
              data_frame=data)
 visualize_3d(measurement_name_vet=pause_name_vet, name_of_categorical_var="undergrad_study_indicator",
              data_frame=data)
-
-########################
-# Matrix scatter plots #
-########################
-# Potentially intersting
-scatter_matrix(data[["Birth Year"] + pitch_name_vet])
-scatter_matrix(data[["Birth Year", 'Dynamism']])
-
-# Not useful
-scatter_matrix(data[["Birth Year"] + intensity_name_vet])
-scatter_matrix(data[["Birth Year"] + pause_name_vet])
-scatter_matrix(data[["Birth Year"] + complexity_name_vet])
-
-
-
-####################
-# Boxplot and test #
-####################
-def boxplot(measure_name_vet, data_frame):
-    for measure_name in measure_name_vet:
-        response_column = data_frame[measure_name]
-        column_name_vet = ["undergrad_study_indicator", "graduate_study_indicator",
-                           "cave_canem_indicator", "public_private_indicator"]
-        categorical_data_frame = data_frame[column_name_vet]
-
-        fig, ax = plt.subplots(2, 2)
-        for i, sub_ax in enumerate(ax.reshape(-1)):
-            response_vet = [response_column[categorical_data_frame.iloc[:, i] == category] for category in
-                            np.unique(categorical_data_frame.iloc[:, i])]
-            sub_ax.boxplot(response_vet)
-            sub_ax.set_title(column_name_vet[i])
-
-        fig.suptitle(measure_name)
-
-
-boxplot(measure_name_vet=full_measurement_name_vet, data_frame=data)
-
-
-
-####################################
-# Clustering for PCA visualization #
-####################################
-kmeans = KMeans(n_clusters=4, random_state=0)
-measurement_data = data[pitch_name_vet + intensity_name_vet + pause_name_vet +complexity_name_vet + ["Dynamism"]]
-predicted_label_vet = kmeans.fit_predict(measurement_data)
-
-
-#######
-# PCA #
-#######
-scaler = sklearn.preprocessing.StandardScaler()
-standardized_data_array = scaler.fit_transform(measurement_data)
-
-pca = PCA()
-pca.fit(standardized_data_array)
-plt.plot(np.arange(1, measurement_data.shape[1] + 1), pca.explained_variance_ratio_)
-plt.show()
-
-pca.components_.shape
-principal_components_array = pca.transform(standardized_data_array)
-
-fig = plt.figure()
-ax = plt.axes(projection="3d")
-ax.scatter3D(principal_components_array[:, 0], principal_components_array[:, 1], principal_components_array[:, 2])
-plt.show()
-
-# Plot according to cluster
-cdict = {1: 'red', 2: 'blue', 3: 'green', 0: "black"}
-#fig, ax = plt.subplots()
-fig = plt.figure()
-ax = plt.axes(projection="3d")
-for g in np.unique(predicted_label_vet):
-    ix = np.where(predicted_label_vet == g)
-#    ax.scatter(principal_components_array[ix, 0], principal_components_array[ix, 1], c = cdict[g], label = g, s = 100)
-    ax.scatter3D(principal_components_array[ix, 0], principal_components_array[ix, 1], principal_components_array[ix, 2],
-                 c = cdict[g], label = g, s = 100)
-ax.legend()
-plt.show()
-
 
