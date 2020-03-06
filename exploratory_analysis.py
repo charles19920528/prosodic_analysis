@@ -1,9 +1,5 @@
 import pandas as pd
-import sklearn.preprocessing
-from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
 import numpy as np
-import scipy.stats as stats
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from pandas.plotting import scatter_matrix
@@ -70,8 +66,18 @@ def boxplot(measure_name_vet, data_frame):
             category_vet = np.unique(categorical_data_frame.iloc[:, i])
             response_vet = [response_column[categorical_data_frame.iloc[:, i] == category] for category in
                             category_vet]
-            sub_ax.boxplot(response_vet, labels=category_vet)
-            sub_ax.set_title(label_vet[i])
+            if column_name_vet[i] == "region":
+                region_name_vet = ['Caribbean', 'Midwest', 'NYC', 'Northeast', 'South', 'West', 'Other']
+                region_response_vet = []
+                for region in region_name_vet:
+                    region_response_vet.append(response_vet[np.where(category_vet == region)[0][0]])
+
+                sub_ax.boxplot(region_response_vet, labels=region_name_vet)
+                sub_ax.set_title(label_vet[i])
+            else:
+                sub_ax.boxplot(response_vet, labels=category_vet)
+                sub_ax.set_xticklabels(["No", "Yes"])
+                sub_ax.set_title(label_vet[i])
 
         fig.suptitle(measure_name)
 
