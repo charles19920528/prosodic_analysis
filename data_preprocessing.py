@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-data = pd.read_excel("data/101AfAmWomenPoetsVoxitResults5-3-21.xlsx", engine='openpyxl', nrows=202)
+data = pd.read_excel("data/101AfAmWomenPoetsVoxitResults5-3-21.xlsx", engine='openpyxl', nrows=203)
 data = data[data.columns[:26].append(data.columns[-1:]).append(data.columns[26:-1])]
 data.columns = ["_".join(x.strip().lower().split(" ")) for x in data.columns[:27]] + data.columns[27:].to_list()
 
