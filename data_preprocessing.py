@@ -1,15 +1,17 @@
 import pandas as pd
 import numpy as np
 
-data = pd.read_excel("data/101AfAmWomenPoetsVoxitResults5-3-21.xlsx", engine='openpyxl', nrows=203)
-data = data[data.columns[:26].append(data.columns[-1:]).append(data.columns[26:-1])]
+data = pd.read_excel("data/101AfAmWomenPoetsVoxitResults5-22-21.xlsx", engine='openpyxl', nrows=203)
+
+data = data[data.columns[:28].append(data.columns[-1:]).append(data.columns[28:-1])]
 data.columns = ["_".join(x.strip().lower().split(" ")) for x in data.columns[:27]] + data.columns[27:].to_list()
 
 data.rename({"cave_canem_(fellow,_faculty,_or_board)": "cave_canem",
              'public_0_/private_1': "private_school", "undergrad/comm._college": "undergraduate_school",
              'recording:_live,_studio,_or_self-recorded': "recording",
-             'audience:academic?_spoken_word?_poetry_reading_space?_poetry_festival?_cave_canem_channel?_bar_reading_series?_book_fair?_residence?_gallery?_bookstore?_other?':
-            "audience", 'major_award_(1),_none_(0)': 'major_award'}, axis=1, inplace=True)
+             'audience:_academic_(poetry_festivals_and_universities)?_spoken_word?_public_reading_space_(bookstores,_bars,_galleries)?':
+            "audience", 'major_award_(1),_none_(0)': 'major_award', "Poem Title": "poem_title"}, axis=1, inplace=True)
+
 data["birth_year"] = data["birth_year"].replace({0: np.nan})
 data[["spoken_word", "cave_canem"]] = data[["spoken_word", "cave_canem"]].replace({0: False, 1: True})
 
