@@ -45,5 +45,3 @@ data = data.rename(columns={
 data['poet_full_name'] = data['author_last_name'] + ' ' + data['author_first_name']
 
 data.to_csv("data/data_for_analysis.csv", index=False)
-
-
