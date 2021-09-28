@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-data = pd.read_excel("data/101AfAmWomenPoetsVoxitResults5-22-21.xlsx", engine='openpyxl', nrows=203)
+data = pd.read_excel("data/VoxitData101BWPClean9-27-2021.xlsx", engine='openpyxl', nrows=203)
 
 data = data[data.columns[:28].append(data.columns[-1:]).append(data.columns[28:-1])]
 data.columns = ["_".join(x.strip().lower().split(" ")) for x in data.columns[:27]] + data.columns[27:].to_list()
@@ -18,7 +18,7 @@ data[["spoken_word", "cave_canem"]] = data[["spoken_word", "cave_canem"]].replac
 # drop rows without prosodic measurements
 data = data.loc[data["f0Mean"].notna(), :]
 
-data['region'] = data['region'].replace(['Puerto Rico/West', 'Unknown', 'British', 'South/West'], 'Other')
+data['region'] = data['region'].replace(['Puerto Rico/West', 'Unknown', 'British', 'South/West', ""], 'Other')
 
 # No school means not attending?
 # Some poets have grad schools but not undergrad instituions.
